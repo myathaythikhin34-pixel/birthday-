@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Surprise</title>
+
+    <style>
+        /* Background */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #FFC0CB;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 90%;
+        }
+
+        /* Photo */
+        .profile-photo {
+            width: 420px;
+            height: 420px;
+            object-fit: cover;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px; /* Reduced margin */
+        }
+
+        /* Title - Now the main question */
+        h1 {
+            color: #d81b60;
+            font-size: 2.8rem;
+            margin-bottom: 10px; /* Brought closer to buttons */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Button Container for alignment */
+        .button-group {
+            margin-top: 15px; /* Fine-tuned spacing */
+        }
+
+        /* Capsule/Oval Button style with Glow */
+        .button {
+            display: inline-block;
+            padding: 15px 60px; /* Adjusted for capsule shape */
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: white;
+            background-color: #ff4081;
+            text-decoration: none;
+            border-radius: 100px; /* Full capsule shape */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(255, 64, 129, 0.3);
+            margin: 10px;
+            border: 2px solid transparent;
+        }
+
+        /* Hover Effect: Stronger Glow and Scaling */
+        .button:hover {
+            transform: scale(1.1);
+            background-color: #f50057;
+            box-shadow: 0 0 20px rgba(255, 64, 129, 0.8), 
+                        0 0 40px rgba(255, 64, 129, 0.4);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Click Effect */
+        .button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <img src="is it.jpg" alt="Birthday Person" class="profile-photo">
+
+        <h1>Is your birthday today?</h1>
+
+        <div class="button-group">
+            <a href="bb.html" class="button">YES</a>
+            <a href="no.html" class="button">NO</a>
+        </div>
+    </div>
+
+</body>
+</html>

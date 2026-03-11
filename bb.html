@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Birthday Surprise</title>
+
+<style>
+body {
+    background: #fff5f8;
+    font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+    color: #444;
+    overflow: hidden; /* Prevent scrolling during fireworks */
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+/* FIREWORKS CANVAS */
+#fw-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allows clicking through to the cake */
+    z-index: 0;
+}
+
+#birthday {
+    position: relative;
+    z-index: 10; /* Keeps text and cake above fireworks */
+    margin-top: 20px; 
+}
+
+h1 {
+    font-size: 60px;
+    color: #ff4da6;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+}
+
+#instruction {
+    background: white;
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    font-size: 14px;
+}
+
+.cake-container {
+    position: relative;
+    width: 500px;
+    height: 380px;
+    margin: 80px auto 20px auto;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+.layer {
+    position: relative;
+    border-radius: 50% 50% 10% 10% / 20% 20% 10% 10%;
+    box-shadow: inset 0 -20px 0 rgba(0,0,0,0.05);
+    opacity: 0;
+}
+
+.layer-bottom { width: 440px; height: 160px; background: #ffb6d9; z-index: 1; }
+.layer-middle { width: 320px; height: 130px; background: #96e6a1; z-index: 2; margin-bottom: -40px; }
+.layer-top    { width: 220px; height: 100px; background: #ffdf70; z-index: 3; margin-bottom: -30px; }
+
+.drip {
+    position: absolute;
+    width: 100%;
+    height: 40px;
+    background: white;
+    border-radius: 20px 20px 10px 10px;
+    top: 0;
+}
+
+.fall-down {
+    animation: fallDown 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+}
+
+@keyframes fallDown {
+    0%   { transform: translateY(-1000px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.candles-row {
+    position: absolute;
+    top: -60px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.candle {
+    width: 14px;
+    height: 60px;
+    background: repeating-linear-gradient(45deg, #fff, #fff 5px, #4db8ff 5px, #4db8ff 10px);
+    margin: 0 15px;
+    border-radius: 4px;
+    transform: scale(0);
+    opacity: 0;
+}
+
+.pop-up {
+    animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+}
+
+@keyframes popUp {
+    to { transform: scale(1); opacity: 1; }
+}
+
+.flame {
+    position: absolute;
+    top: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 32px;
+    background: radial-gradient(ellipse at bottom, #fff 0%, #fef310 40%, #fead10 60%, #e35205 100%);
+    border-radius: 50% 50% 20% 20% / 70% 70% 30% 30%;
+    box-shadow: 0 0 15px #fef310, 0 0 30px #fead10;
+    animation: flicker 0.6s infinite alternate;
+    cursor: pointer;
+}
+
+@keyframes flicker {
+    0%   { transform: translateX(-50%) skewX(2deg) scale(1); }
+    100% { transform: translateX(-50%) skewX(-2deg) scale(1.1); }
+}
+
+#wish {
+    display: none;
+    font-size: 36px;
+    color: #ff4da6;
+    font-weight: bold;
+    margin-top: 20px;
+    text-shadow: 0 0 10px white;
+}
+
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    opacity: 0.9;
+    z-index: 5;
+    animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+    to { transform: translateY(100vh) rotate(720deg); }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fw-canvas"></canvas>
+
+<div id="birthday">
+    <h1>HAPPY BIRTHDAY! 🎉</h1>
+    <div id="instruction">Tap the flames to blow out the candles 🔥</div>
+
+    <div class="cake-container">
+        <div id="l1" class="layer layer-bottom"><div class="drip"></div></div>
+        <div id="l2" class="layer layer-middle"><div class="drip"></div></div>
+        <div id="l3" class="layer layer-top">
+            <div class="drip"></div>
+            <div class="candles-row" id="candle-box"></div>
+        </div>
+    </div>
+
+    <div id="wish">✨ May your wish come true ✨</div>
+</div>
+
+<script>
+window.onload = function() {
+    startConfetti();
+    setTimeout(() => { document.getElementById("l1").classList.add("fall-down"); }, 500);
+    setTimeout(() => { document.getElementById("l2").classList.add("fall-down"); }, 1200);
+    setTimeout(() => { document.getElementById("l3").classList.add("fall-down"); }, 1900);
+    setTimeout(() => { createCandles(); }, 2600);
+};
+
+function startConfetti() {
+    for (let i = 0; i < 80; i++) {
+        let confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.background = ["#ff4da6", "#ffd93d", "#6bcBef", "#95e06c", "#ff8fab"][Math.floor(Math.random() * 5)];
+        confetti.style.animationDuration = (Math.random() * 3 + 2) + "s";
+        document.body.appendChild(confetti);
+        setTimeout(() => { confetti.remove(); }, 5000);
+    }
+}
+
+function createCandles() {
+    const candleBox = document.getElementById("candle-box");
+    for (let i = 0; i < 3; i++) {
+        let candle = document.createElement("div");
+        candle.className = "candle pop-up";
+        candle.style.animationDelay = (i * 0.2) + "s";
+
+        let flame = document.createElement("div");
+        flame.className = "flame";
+        flame.onclick = function() {
+            this.style.opacity = "0";
+            this.style.pointerEvents = "none";
+            checkCandles();
+        };
+
+        candle.appendChild(flame);
+        candleBox.appendChild(candle);
+    }
+}
+
+function checkCandles() {
+    let flames = document.querySelectorAll(".flame");
+    let activeFlames = 0;
+    flames.forEach(f => {
+        if (f.style.opacity !== "0") activeFlames++;
+    });
+
+    if (activeFlames === 0) {
+        document.getElementById("wish").style.display = "block";
+        initFireworks(); // Start the background fireworks
+    }
+}
+
+// FIREWORKS LOGIC
+function initFireworks() {
+    const canvas = document.getElementById('fw-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+    const colors = ['#ff4da6', '#ffd93d', '#6bcBef', '#95e06c', '#ffffff'];
+
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.velocity = {
+                x: (Math.random() - 0.5) * 8,
+                y: (Math.random() - 0.5) * 8
+            };
+            this.alpha = 1;
+            this.friction = 0.95;
+        }
+
+        draw() {
+            ctx.globalAlpha = this.alpha;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 3, 0, Math.PI * 2, false);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        update() {
+            this.velocity.x *= this.friction;
+            this.velocity.y *= this.friction;
+            this.velocity.y += 0.05; // gravity
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+            this.alpha -= 0.01;
+        }
+    }
+
+    function createFirework() {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * (canvas.height * 0.5);
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle(x, y, color));
+        }
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        ctx.fillStyle = 'rgba(255, 245, 248, 0.1)'; // Matches body background
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((particle, index) => {
+            if (particle.alpha > 0) {
+                particle.update();
+                particle.draw();
+            } else {
+                particles.splice(index, 1);
+            }
+        });
+    }
+
+    // Launch fireworks every 800ms
+    setInterval(createFirework, 800);
+    animate();
+}
+</script>
+
+</body>
+</html>
